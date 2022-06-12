@@ -1,0 +1,74 @@
+name: cartallum_app
+description: A new Flutter project.
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.16.2 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # rotas e inj dep
+  flutter_modular: ^5.0.3
+
+  # comportamento
+  mobx: ^2.0.7+3
+  flutter_mobx: ^2.0.6+1
+
+  # componentes
+  fl_chart: ^0.50.1
+  flutter_form_builder: ^7.1.1
+  form_builder_extra_fields: ^7.1.0
+
+  #data generation
+  cpf_cnpj_validator: ^2.0.0
+  mock_data: ^2.0.0
+
+  # assets
+  google_fonts: ^2.3.1
+  lottie: ^1.2.2
+  font_awesome_flutter: ^10.1.0
+  cupertino_icons: ^1.0.2
+
+  #internacionalizaco
+  intl: ^0.17.0
+
+  flutter_localizations:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^1.0.0
+
+  build_runner: ^2.1.10
+  mobx_codegen: ^2.0.5+2
+
+flutter:
+  #generate: true
+  uses-material-design: true
+  assets:
+    - assets/imgs/
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins/Poppins-Medium.ttf
+          weight: 400
+        - asset: assets/fonts/Poppins/Poppins-Regular.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins/Poppins-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Poppins/Poppins-Thin.ttf
+          weight: 200
+#para ativar dart pub global activate rps nome_do_scripts
+scripts:
+  dev: flutter run -d all --flavor dev -t lib/main.dart
+  get: flutter pub get
+  gen: flutter pub run build_runner watch --delete-conflicting-outputs
+  clean: flutter clean
