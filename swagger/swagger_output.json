@@ -1,0 +1,2269 @@
+{
+  "swagger": "2.0",
+
+  "securityDefinitions": {
+    "bearerAuth": {
+      "name": "authorization",
+      "in": "header",
+      "type": "apiKey",
+      "description": "JWT Authorization header"
+    }
+  },
+  "security": [{ "bearerAuth": [] }],
+  "info": {
+    "title": "Cesta Solidária API",
+    "description": "Api Cesta Solidária com node, express e mongodb",
+    "version": "1.0.3"
+  },
+  "host": "localhost:3000",
+  "basePath": "/",
+  "schemes": ["http"],
+  "paths": {
+    "/api/v1/users/signup": {
+      "post": {
+        "description": "Criação de usuário",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "body",
+            "description": "Informações de novo usuário",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "João da Silva"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "exemplo@email.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "veryStrongPassword"
+                },
+                "passwordConfirm": {
+                  "type": "string",
+                  "example": "veryStrongPassword"
+                }
+              },
+              "required": ["name", "email", "password", "passwordConfirm"]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Por favor, informe o e-mail e senha"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      }
+    },
+    "/api/v1/users/login": {
+      "post": {
+        "description": "Login de usuário",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "body",
+            "description": "Autenticação de Usuário",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "example": "exemplo@email.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "veryStrongPassword"
+                }
+              },
+              "required": ["email", "password"]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "401": {
+            "description": "Senha ou email incorretos"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      }
+    },
+    "/api/v1/users/logout": {
+      "get": {
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/users/forgotPassword": {
+      "post": {
+        "description": "Autenticação de Usuário",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "body",
+
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "example": "exemplo@email.com"
+                }
+              },
+              "required": ["email"]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Token enviado para o e-mail"
+          },
+          "401": {
+            "description": "Senha ou email incorretos"
+          },
+          "404": {
+            "description": "Não existe usuário associado a este email"
+          },
+          "500": {
+            "description": "Houve um problema ao enviar o email. Tente novamente mais tarde"
+          }
+        }
+      }
+    },
+    "/api/v1/users/resetPassword/{token}": {
+      "patch": {
+        "description": "Mudar a senha de usuário não logado",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "password": {
+                  "type": "password",
+                  "example": "veryStrongPassword"
+                },
+                "passwordConfirm": {
+                  "type": "string",
+                  "example": "veryStrongPassword"
+                }
+              },
+              "required": ["password", "passwordConfirm"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "400": {
+            "description": "O token é inválido ou expirou"
+          }
+        }
+      }
+    },
+    "/api/v1/users/forgotPasswordCode": {
+      "post": {
+        "description": "Mudar a senha de usuário com token de 6 caracteres",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "password": {
+                  "type": "password",
+                  "example": "veryStrongPassword"
+                },
+                "passwordConfirm": {
+                  "type": "string",
+                  "example": "veryStrongPassword"
+                }
+              },
+              "required": ["password", "passwordConfirm"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          },
+          "400": {
+            "description": "O token é inválido ou expirou"
+          }
+        }
+      }
+    },
+    "/api/v1/users/autocomplete": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "type": "string",
+            "description": "Lista de Ids de usuários"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "$ref": "#/definitions/User"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/updateMyPassword": {
+      "patch": {
+        "description": "Mudar a senha de usuário usuário logado",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "passwordCurrent": {
+                  "type": "password",
+                  "example": "veryStrongPassword"
+                },
+                "password": {
+                  "type": "password",
+                  "example": "veryStrongPassword"
+                },
+                "passwordConfirm": {
+                  "type": "string",
+                  "example": "veryStrongPassword"
+                }
+              },
+              "required": ["passwordCurrent", "password", "passwordConfirm"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          },
+          "400": {
+            "description": "O token é inválido ou expirou"
+          }
+        }
+      }
+    },
+    "/api/v1/users/me": {
+      "get": {
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "O token é inválido ou expirou"
+          }
+        }
+      }
+    },
+    "/api/v1/users/updateMe": {
+      "patch": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "photo",
+            "in": "formData",
+            "required": false,
+            "type": "file"
+          },
+          {
+            "name": "user",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "João da Silva"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "exemplo@email.com"
+                }
+              },
+              "required": ["passwordCurrent", "password", "passwordConfirm"]
+            }
+          }
+        ],
+
+        "consumes": "multipart/form-data",
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Update de senha não permitido nesta rota. Utilize /updateMyPassword."
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      }
+    },
+    "/api/v1/users/deleteMe": {
+      "delete": {
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "success"
+          }
+        }
+      }
+    },
+    "/api/v1/familias/search": {
+      "get": {
+        "description": "Busca por família com queryparams",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "$ref": "#/definitions/Familia"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/v1/familias/": {
+      "get": {
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "$ref": "#/definitions/Familia"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "description": "Criar família",
+        "parameters": [
+          {
+            "name": "familia",
+            "in": "body",
+            "description": "Informações de novo usuário",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Familia"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Familia"
+            }
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      }
+    },
+    "/api/v1/familias/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Familia"
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          }
+        }
+      },
+      "patch": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "familia",
+            "in": "body",
+            "description": "Informações de novo usuário",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Familia"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Familia"
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      }
+    },
+    "/api/v1/familias/{familiaId}/pessoas/": {
+      "get": {
+        "description": "Pessoas de uma família",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "familiaId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "nome": {
+                    "type": "string",
+                    "example": "João da Silva"
+                  },
+                  "dataNascimento": {
+                    "type": "string"
+                  },
+                  "sexo": {
+                    "type": "string",
+                    "description": "Aceita [f, m, o]"
+                  },
+                  "responsavel": {
+                    "type": "boolean",
+                    "description": "Responsável pela família"
+                  },
+                  "telefone": {
+                    "type": "string",
+                    "description": "Telefone de contato"
+                  },
+                  "comprovante": {
+                    "type": "string",
+                    "description": "Documento comprovante de identidade"
+                  },
+                  "dataComprovante": {
+                    "type": "string"
+                  },
+                  "criadoEm": {
+                    "type": "string"
+                  },
+                  "familia": {
+                    "type": "string"
+                  },
+                  "local": {
+                    "type": "object",
+                    "$ref": "#/definitions/Local"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      },
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "familiaId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "photo",
+            "in": "formData",
+            "required": false,
+            "type": "file"
+          },
+          {
+            "name": "pessoa",
+            "in": "body",
+            "description": "Informações de pessoa",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Pessoa"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "nome": {
+                  "type": "string",
+                  "example": "João da Silva"
+                },
+                "dataNascimento": {
+                  "type": "string"
+                },
+                "sexo": {
+                  "type": "string",
+                  "description": "Aceita [f, m, o]"
+                },
+                "responsavel": {
+                  "type": "boolean",
+                  "description": "Responsável pela família"
+                },
+                "telefone": {
+                  "type": "string",
+                  "description": "Telefone de contato"
+                },
+                "comprovante": {
+                  "type": "string",
+                  "description": "Documento comprovante de identidade"
+                },
+                "dataComprovante": {
+                  "type": "string"
+                },
+                "criadoEm": {
+                  "type": "string"
+                },
+                "familia": {
+                  "type": "string"
+                },
+                "local": {
+                  "type": "object",
+                  "$ref": "#/definitions/Local"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      }
+    },
+    "/api/v1/familias/{familiaId}/pessoas/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "familiaId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "$ref": "#/definitions/Pessoa"
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "familiaId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          }
+        }
+      },
+      "patch": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "familiaId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "pessoa",
+            "in": "body",
+            "description": "Informações de pessoa",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Pessoa"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Pessoa"
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          }
+        }
+      }
+    },
+    "/api/v1/instituicoes/search": {
+      "get": {
+        "description": "",
+        "parameters": [],
+        "responses": {}
+      }
+    },
+    "/api/v1/instituicoes/report": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/InstituicaoRelatorio"
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+
+    "/api/v1/instituicoes/": {
+      "get": {
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "$ref": "#/definitions/Instituicao"
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          }
+        }
+      },
+      "post": {
+        "description": "Cria instituição",
+        "parameters": [
+          {
+            "name": "instituicao",
+            "in": "body",
+            "description": "Informações de instituição",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Instituicao"
+            }
+          }
+        ],
+        "responses": {
+          "responses": {
+            "200": {
+              "description": "success",
+              "schema": {
+                "$ref": "#/definitions/Instituicao"
+              }
+            },
+            "500": {
+              "description": "ValidatorError"
+            }
+          }
+        }
+      }
+    },
+
+    "/api/v1/instituicoes/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Instituicao"
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "instituicao",
+            "in": "body",
+            "description": "Informações de instituição",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Instituicao"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          }
+        }
+      },
+      "patch": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "instituicao",
+            "in": "body",
+            "description": "Informações de instituição",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Instituicao"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Instituicao"
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          }
+        }
+      }
+    },
+    "/api/v1/instituicoes/{instituicaoId}/endereco/": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/EnderecosInstituicao"
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          }
+        }
+      },
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "instituicaoId": {
+                  "example": "any"
+                },
+                "instituicao": {
+                  "example": "any"
+                },
+                "user": {
+                  "example": "any"
+                }
+              }
+            }
+          },
+          {
+            "name": "instituicao",
+            "in": "body",
+            "description": "Informações de instituição",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/EnderecosInstituicao"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/EnderecosInstituicao"
+            }
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      }
+    },
+    "/api/v1/instituicoes/{instituicaoId}/endereco/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "instituicao",
+            "in": "body",
+            "description": "Informações de instituição",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Instituicao"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/EnderecosInstituicao"
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          }
+        }
+      },
+      "patch": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "instituicao",
+            "in": "body",
+            "description": "Informações de instituição",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Instituicao"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/EnderecosInstituicao"
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      }
+    },
+    "/api/v1/instituicoes/{instituicaoId}/membros/": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "$ref": "#/definitions/UserInstituicao"
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          }
+        }
+      }
+    },
+    "/api/v1/instituicoes/{instituicaoId}/membros/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/UserInstituicao"
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      },
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "instituicao",
+            "in": "body",
+            "description": "Informações de instituição",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserInstituicao"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/UserInstituicao"
+            }
+          },
+          "400": {
+            "description": "Entrada inválida ou duplicada."
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          }
+        }
+      },
+      "patch": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "instituicao",
+            "in": "body",
+            "description": "Informações de instituição",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserInstituicao"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/UserInstituicao"
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      }
+    },
+    "/api/v1/instituicoes/{instituicaoId}/cestas/": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "criadoEm": {
+                    "type": "string"
+                  },
+                  "divergente": {
+                    "type": "boolean"
+                  },
+                  "motivoDivergencia": {
+                    "type": "string"
+                  },
+                  "familia": {
+                    "type": "string"
+                  },
+                  "instituicao": {
+                    "type": "string"
+                  },
+                  "usuario": {
+                    "type": "string"
+                  },
+                  "local": {
+                    "type": "object",
+                    "$ref": "#/definitions/Local"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      },
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cesta",
+            "in": "body",
+            "description": "Informações de instituição",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Cesta"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "criadoEm": {
+                  "type": "string"
+                },
+                "divergente": {
+                  "type": "boolean"
+                },
+                "motivoDivergencia": {
+                  "type": "string"
+                },
+                "familia": {
+                  "type": "string"
+                },
+                "instituicao": {
+                  "type": "string"
+                },
+                "usuario": {
+                  "type": "string"
+                },
+                "local": {
+                  "type": "object",
+                  "$ref": "#/definitions/Local"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrada inválida ou duplicada."
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/v1/instituicoes/{instituicaoId}/cestas/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Cesta"
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          }
+        }
+      },
+      "patch": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cesta",
+            "in": "body",
+            "description": "Informações de instituição",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Cesta"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Cesta"
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      }
+    },
+
+    "/api/v1/instituicoes/{instituicaoId}/familias/": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {}
+      },
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "$ref": "#/definitions/Familia"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/v1/instituicoes/{instituicaoId}/familias/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "$ref": "#/definitions/Familia"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/v1/instituicoes/{instituicaoId}/familias/{familiaId}/pessoas/": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "familiaId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "responses": {
+            "200": {
+              "description": "success",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "$ref": "#/definitions/Pessoa"
+                }
+              }
+            },
+            "404": {
+              "description": "Nenhum documento encontrado para o id fornecido"
+            },
+            "500": {
+              "description": "ValidatorError"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/instituicoes/{instituicaoId}/familias/{familiaId}/pessoas/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "instituicaoId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "familiaId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "responses": {
+            "200": {
+              "description": "success",
+              "schema": {
+                "$ref": "#/definitions/Pessoa"
+              }
+            },
+            "404": {
+              "description": "Nenhum documento encontrado para o id fornecido"
+            },
+            "500": {
+              "description": "ValidatorError"
+            }
+          }
+        }
+      }
+    },
+
+    "/api/v1/atividades/": {
+      "get": {
+        "description": "Recuperar lista de log de atividades",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "$ref": "#/definitions/Atividade"
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      },
+      "post": {
+        "description": "Criar log de atividades",
+        "parameters": [
+          {
+            "name": "atividade",
+            "in": "body",
+            "description": "Informações de atividades",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Atividade"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Atividade"
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      }
+    },
+    "/api/v1/atividades/{id}": {
+      "get": {
+        "description": "Recuperar log de atividades pelo Id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Atividade"
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      }
+    },
+    "/api/v1/configuracao/": {
+      "get": {
+        "description": "Recuperar lista de configurações",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "$ref": "#/definitions/Configuracao"
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      },
+      "post": {
+        "description": "Criar configuração",
+        "parameters": [
+          {
+            "name": "configuracao",
+            "in": "body",
+            "description": "Parâmetros de doação de cestas",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Configuracao"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Configuracao"
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      }
+    },
+    "/api/v1/configuracao/{id}": {
+      "get": {
+        "description": "Recuperar configuração pelo id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Configuracao"
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      },
+      "patch": {
+        "description": "Alterar configuração",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Configuracao"
+            }
+          },
+          "404": {
+            "description": "Nenhum documento encontrado para o id fornecido"
+          },
+          "500": {
+            "description": "ValidatorError"
+          }
+        }
+      }
+    }
+  },
+
+  "definitions": {
+    "Local": {
+      "type": "object",
+      "properties": {
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "example": "João da Silva"
+        },
+        "email": {
+          "type": "string",
+          "example": "exemplo@email.com"
+        },
+        "password": {
+          "type": "string"
+        },
+        "passwordConfirm": {
+          "type": "string"
+        },
+        "photo": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        }
+      }
+    },
+
+    "UserInstituicao": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "user"],
+          "example": "admin"
+        },
+        "usuario": {
+          "type": "string"
+        },
+        "criadoEm": {
+          "type": "string"
+        }
+      }
+    },
+
+    "EnderecosInstituicao": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "logradouro": {
+          "type": "string"
+        },
+        "bairro": {
+          "type": "string"
+        },
+        "numero": {
+          "type": "string"
+        },
+        "complemento": {
+          "type": "string"
+        },
+        "pontoReferencia": {
+          "type": "string"
+        },
+        "cep": {
+          "type": "string"
+        },
+        "pais": {
+          "type": "string"
+        },
+        "estado": {
+          "type": "string"
+        },
+        "local": {
+          "type": "string"
+        },
+        "instituicao": {
+          "type": "string"
+        }
+      }
+    },
+    "Instituicao": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "nome": {
+          "type": "string",
+          "example": "Instituição Matriz"
+        },
+        "sigla": {
+          "type": "string",
+          "example": "IM"
+        },
+        "tipo": {
+          "type": "string",
+          "description": "aceita os valores [matriz, instituicao]"
+        },
+        "telefone": {
+          "type": "string"
+        },
+        "verificado": {
+          "type": "boolean"
+        },
+        "verificador": {
+          "type": "string"
+        },
+        "criadoEm": {
+          "type": "string"
+        },
+        "local": {
+          "type": "object",
+          "$ref": "#/definitions/Local"
+        },
+        "endereco": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/EnderecosInstituicao"
+          }
+        }
+      }
+    },
+    "InstituicaoRelatorio": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "nome": {
+          "type": "string",
+          "example": "Instituição Matriz"
+        },
+        "sigla": {
+          "type": "string",
+          "example": "IM"
+        },
+        "tipo": {
+          "type": "string",
+          "description": "aceita os valores [matriz, instituicao]"
+        },
+        "telefone": {
+          "type": "string"
+        },
+        "verificado": {
+          "type": "boolean"
+        },
+        "verificador": {
+          "type": "string"
+        },
+        "criadoEm": {
+          "type": "string"
+        },
+        "local": {
+          "type": "object",
+          "$ref": "#/definitions/Local"
+        },
+        "endereco": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/EnderecosInstituicao"
+          }
+        },
+        "membros": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/UserInstituicao"
+          }
+        },
+        "cestas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/Cesta"
+          }
+        },
+        "cestasAno": {
+          "type": "number"
+        },
+        "cestasTotal": {
+          "type": "number"
+        }
+      }
+    },
+    "Endereco": {
+      "type": "object",
+      "properties": {
+        "logradouro": {
+          "type": "string"
+        },
+        "bairro": {
+          "type": "string"
+        },
+        "numero": {
+          "type": "string"
+        },
+        "complemento": {
+          "type": "string"
+        },
+        "pontoReferencia": {
+          "type": "string"
+        },
+        "cep": {
+          "type": "string"
+        },
+        "pais": {
+          "type": "string"
+        },
+        "estado": {
+          "type": "string"
+        },
+        "cidade": {
+          "type": "string"
+        },
+        "criadoEm": {
+          "type": "string"
+        },
+        "local": {
+          "type": "object",
+          "$ref": "#/definitions/Local"
+        }
+      }
+    },
+    "Familia": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "renda": {
+          "type": "string",
+          "example": "Instituição Matriz"
+        },
+        "status": {
+          "type": "string",
+          "example": ""
+        },
+        "motivoStatus": {
+          "type": "string",
+          "description": "aceita os valores [matriz, instituicao]"
+        },
+        "statusEm": {
+          "type": "string"
+        },
+        "responsavelStatus": {
+          "type": "boolean"
+        },
+        "criadoEm": {
+          "type": "string"
+        },
+        "comprovanteRenda": {
+          "type": "string"
+        },
+        "dataComprovanteRenda": {
+          "type": "string"
+        },
+        "comprovanteEndereco": {
+          "type": "string"
+        },
+        "dataComprovanteEndereco": {
+          "type": "string"
+        },
+        "local": {
+          "type": "object",
+          "$ref": "#/definitions/Local"
+        },
+        "endereco": {
+          "$ref": "#/definitions/Endereco"
+        }
+      }
+    },
+    "Pessoa": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "nome": {
+          "type": "string",
+          "example": "João da Silva"
+        },
+        "dataNascimento": {
+          "type": "string"
+        },
+        "sexo": {
+          "type": "string",
+          "description": "Aceita [f, m, o]"
+        },
+        "responsavel": {
+          "type": "boolean",
+          "description": "Responsável pela família"
+        },
+        "telefone": {
+          "type": "string",
+          "description": "Telefone de contato"
+        },
+        "criadoEm": {
+          "type": "string"
+        },
+        "familia": {
+          "type": "string"
+        },
+        "local": {
+          "type": "object",
+          "$ref": "#/definitions/Local"
+        }
+      }
+    },
+    "Cesta": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "criadoEm": {
+          "type": "string"
+        },
+        "divergente": {
+          "type": "boolean"
+        },
+        "motivoDivergencia": {
+          "type": "string"
+        },
+        "familia": {
+          "type": "string"
+        },
+        "local": {
+          "type": "object",
+          "$ref": "#/definitions/Local"
+        }
+      }
+    },
+    "Atividade": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "criadoEm": {
+          "type": "string"
+        },
+        "metodo": {
+          "type": "boolean"
+        },
+        "level": {
+          "type": "string"
+        },
+        "result": {
+          "type": "string"
+        },
+        "mensagem": {
+          "type": "string"
+        },
+        "mensagemAmigavel": {
+          "type": "string"
+        },
+        "familia": {
+          "type": "string"
+        },
+        "instituicao": {
+          "type": "string"
+        },
+        "usuario": {
+          "type": "string"
+        },
+        "pessoa": {
+          "type": "string"
+        },
+        "cesta": {
+          "type": "string"
+        },
+        "local": {
+          "type": "object",
+          "$ref": "#/definitions/Local"
+        }
+      }
+    },
+    "Configuracao": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "descricao": {
+          "type": "string"
+        },
+        "mensagemErro": {
+          "type": "string"
+        },
+        "usa": {
+          "type": "boolean"
+        },
+        "restringe": {
+          "type": "boolean"
+        },
+        "limite": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}
